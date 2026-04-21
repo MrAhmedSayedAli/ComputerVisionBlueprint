@@ -89,6 +89,17 @@ Also available scripts for compiling and setting up the environment for Ubuntu 2
 ./scripts/compile.sh --qt <path to qt installation> --type <release or debug>
 ```
 
+### Setting up on Windows with Visual Studio 2022
+```powershell
+.\scripts\setup.ps1
+
+.\scripts\compile.ps1 -Type Release -Deploy
+
+.\build\vs2022-release\dist\ComputerVisionBlueprint.exe
+```
+
+Additional Windows-specific notes are documented in [WINDOWS_BUILD.md](WINDOWS_BUILD.md).
+
 ### Setup
 
 1. **Clone the ComputerVisionBlueprint Repository**
@@ -137,9 +148,10 @@ Use this space to show useful examples of how a project can be used. Additional 
 
 <!-- ROADMAP -->
 ## Roadmap
+
 - [x] AppImage for Linux (download and run)
 
-- [ ] Windows executable
+- [x] Windows executable
 
 - [ ] MacOS executable
 
