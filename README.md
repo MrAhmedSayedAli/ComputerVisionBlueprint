@@ -66,46 +66,74 @@ The motivation behind ComputerVisionBlueprint was to address the steep learning 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This section guides you through the initial setup and building of the ComputerVisionBlueprint project. The project leverages Qt (version 6+), CMake for building, and requires OpenCV as a dependency. It also integrates the [NodeEditor](https://github.com/paceholder/nodeeditor) for graphical node-based editing.
+This project uses Qt 6, CMake, Conan, OpenCV, and the [NodeEditor](https://github.com/paceholder/nodeeditor) dependency checked out at `3rdparty/nodeeditor`.
 
 ## Direct download
-For now only AppImage is available for linux. You can download the latest from the [tags](https://github.com/PabloPicose/ComputerVisionBlueprint/tags)
+
+- Linux: an AppImage is available from the [tags](https://github.com/PabloPicose/ComputerVisionBlueprint/tags).
+- Windows: source builds are supported with the PowerShell workflow documented below and in [WINDOWS_BUILD.md](WINDOWS_BUILD.md).
 
 ### Prerequisites
 
-Before you begin, ensure you have the following installed on your system:
+Before building from source, install:
+
 - Git
 - CMake
-- Qt (version 6 or higher)
-Also available scripts for compiling and setting up the environment for Ubuntu 20.04 LTS or higher are available in the scripts directory.
+- Qt 6
+- Python 3
 
-### Setting up in Ubuntu 20.04 LTS
+The setup scripts also install Conan dependencies and clone `3rdparty/nodeeditor` when needed.
+
+### Build on Linux (Ubuntu 20.04+)
+
+`./scripts/setup.sh` installs the Ubuntu packages used by the project, creates a local virtual environment, installs Conan 2.11, resolves Conan dependencies for Debug and Release, and clones `3rdparty/nodeeditor` if it is missing.
+
 ```bash
-# this may take a while
+# one-time dependency setup
 ./scripts/setup.sh
 
-# this will compile the project
-# the path to qt installation is the path to the bin directory of the qt installation, i.e /home/user/Qt/6.2.0/gcc_64/
-./scripts/compile.sh --qt <path to qt installation> --type <release or debug>
+# configure a release build
+cmake -S . -B build/linux-release \
+  -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_TOOLCHAIN_FILE=.conan/Release/conan_toolchain.cmake \
+  -DCMAKE_PREFIX_PATH="/home/user/Qt/6.8.3/gcc_64;.conan/Release" \
+  -DOpenCV_DIR=.conan/Release
+
+# build
+cmake --build build/linux-release --parallel
 ```
 
-### Setup
+Use your local Qt installation root for `CMAKE_PREFIX_PATH` (for example `/home/user/Qt/6.8.3/gcc_64`). For a Debug build, switch `Release` to `Debug` in both `.conan/...` paths and `CMAKE_BUILD_TYPE`.
 
-1. **Clone the ComputerVisionBlueprint Repository**
+### Build on Windows (Visual Studio 2022)
 
-   First, clone the ComputerVisionBlueprint repository to your local machine using Git:
+The Windows workflow uses the recently added PowerShell scripts and keeps Qt, Conan output, and the packaged executable inside the repository.
 
-   ```bash
-   git clone https://github.com/yourgithubusername/ComputerVisionBlueprint.git
-   cd ComputerVisionBlueprint
-   mkdir 3rdparty
-    ```
-   Clone the NodeEditor repository from GitHub into the 3rdparty directory you just created
-   ```bash
-   git clone https://github.com/paceholder/nodeeditor.git 3rdparty/nodeeditor
-    ```
-2. **Install OpenCV**
-    Ensure OpenCV is installed on your system. You can download and install it from the OpenCV official website or use your distribution's package manager
+```powershell
+.\scripts\setup.ps1
+
+.\scripts\compile.ps1 -Type Release -Deploy
+
+.\build\vs2022-release\dist\ComputerVisionBlueprint.exe
+```
+
+`setup.ps1` installs Conan 2.11 and `aqtinstall`, clones `3rdparty\nodeeditor`, installs Qt 6.8.3 for MSVC 2022 into `.qt`, and prepares `.conan\Debug` plus `.conan\Release`. `compile.ps1` configures a Visual Studio 2022 build, builds it, and `-Deploy` packages a runnable executable with `windeployqt`.
+
+Additional Windows details, optional flags, and output locations are documented in [WINDOWS_BUILD.md](WINDOWS_BUILD.md).
+
+### Manual source checkout
+
+If you prefer to prepare the repository manually instead of using the setup scripts:
+
+```bash
+git clone https://github.com/PabloPicose/ComputerVisionBlueprint.git
+cd ComputerVisionBlueprint
+mkdir -p 3rdparty
+git clone https://github.com/paceholder/nodeeditor.git 3rdparty/nodeeditor
+```
+
+You will also need a Qt 6 installation and Conan-generated dependency files before configuring CMake.
 
 <!-- USAGE EXAMPLES -->
 ## Example detected faces
@@ -137,14 +165,15 @@ Use this space to show useful examples of how a project can be used. Additional 
 
 <!-- ROADMAP -->
 ## Roadmap
+
 - [x] AppImage for Linux (download and run)
 
-- [ ] Windows executable
+- [x] Windows executable
 
 - [ ] MacOS executable
 
 - [ ] Documentation
-  - [ ] Specific how to build
+  - [x] Specific how to build
 
 - [ ] User interface
   - [ ] Dark mode
@@ -166,8 +195,8 @@ Use this space to show useful examples of how a project can be used. Additional 
   - [x] Gaussian Blur
   - [x] Canny
   - [x] Cascade Classifier
-  - [x] Pyramids
-    - [x] Pyr Up
+  - [ ] Pyramids
+    - [ ] Pyr Up
     - [x] Pyr Down
   - [ ] Median Blur
   - [ ] Bilateral Filter
@@ -180,9 +209,9 @@ Use this space to show useful examples of how a project can be used. Additional 
   - [ ] Distance Transform
   - [ ] Watershed
 
-- [ ] Files
-    - [x] From file
-    - [x] From URL
+- [x] Files
+     - [x] From file
+     - [x] From URL
 - [ ] Video
     - [ ] From file
     - [ ] From URL
@@ -199,6 +228,8 @@ Use this space to show useful examples of how a project can be used. Additional 
     - [x] Draw lines
 
 See the [open issues](https://github.com/PabloPicose/ComputerVisionBlueprint/issues) for a full list of proposed features (and known issues).
+
+> Note: the main window already exposes Save and Load actions, but the roadmap item for workflow persistence remains unchecked until that workflow is documented and complete end-to-end.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

@@ -91,6 +91,12 @@ add_executable(ComputerVisionBlueprint
         src/Widgets/MainWindow.cpp
         src/Widgets/MainWindow.h
         src/Widgets/MainWindow.ui
+        src/Widgets/HelpWidget.cpp
+        src/Widgets/HelpWidget.h
+        src/Widgets/ThemeControlsWidget.cpp
+        src/Widgets/ThemeControlsWidget.h
+        src/Widgets/ThemeManager.cpp
+        src/Widgets/ThemeManager.h
         src/Nodes/Variables/RectVarModel.cpp
         src/Nodes/Variables/RectVarModel.h
         src/Nodes/Data/PointData.h

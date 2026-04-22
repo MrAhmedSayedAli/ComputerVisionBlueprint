@@ -6,7 +6,11 @@
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
+#include <QActionGroup>
+#include <QDockWidget>
 #include <QMouseEvent>
+#include <QMenu>
+#include <QStatusBar>
 
 #include <QtNodes/DataFlowGraphicsScene>
 #include <QtNodes/DataFlowGraphModel>
@@ -15,9 +19,23 @@
 
 #include <QtNodes/GraphicsView>
 
+#include "Widgets/HelpWidget.h"
+#include "Widgets/ThemeControlsWidget.h"
+#include "Widgets/ThemeManager.h"
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
+    m_themeManager = new ThemeManager(this);
+    createThemeUi();
+    createHelpUi();
+    connect(m_themeManager, &ThemeManager::themeChanged, this, [this]() {
+        m_themeManager->apply();
+        updateThemeActions();
+        statusBar()->showMessage(QString("Applied %1 theme").arg(ThemeManager::presetLabel(m_themeManager->configuration().preset)), 2500);
+    });
+    m_themeManager->apply();
+    updateThemeActions();
+
     const auto registers = registerDataModels();
     ui->tw_nodes->fillTreeWidget(registers);
 
@@ -32,8 +50,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->actionSave, &QAction::triggered, this, &MainWindow::onActionSaveTriggered);
     connect(ui->actionLoad, &QAction::triggered, this, &MainWindow::onActionLoadTriggered);
 
-    //setMouseTracking(true);
-    //placeNodeInScene("NumberSource", QPointF(881,455));/
+    statusBar()->showMessage("Ready", 2000);
 }
 
 MainWindow::~MainWindow() {
